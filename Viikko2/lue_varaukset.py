@@ -16,7 +16,7 @@ Puhelin: 0401234567
 Sähköposti: anna.virtanen@example.com
 
 """
-def ReplaceDot(text): #Vaihtaa YHDEN pisteen pilkuksi
+def ReplaceDot(text): #Vaihtaa pisteen pilkuksi
     newText = text.replace('.',',')
     return newText
 
@@ -47,7 +47,7 @@ def main():
     startTime = '08:00'
     endTime = '12:00'
 
-    printUnpaid = False #True, jos halutaan printata myös maksaneet
+    printUnpaid = False #True, jos halutaan printata myös ei maksetut varaukset
     printAllTimes = False #True, jos halutaan printata kaikki ajat
 
     prefix_list = [
@@ -64,7 +64,7 @@ def main():
         'Sähköposti',
         ]
 
-    value_list = [] #Lista kaikista varauksista (Tyhjä tällä hetkellä)
+    reservations_list = [] #Lista kaikista varauksista (Tyhjä tällä hetkellä)
     totalPrice = 0 #Tämän hetkinen kokonaishinta
     paidAmount = 0 #Jos maksettu, lisää tähän
 
@@ -92,24 +92,24 @@ def main():
             newReservation.append(reservation[8]) #9Puhelin
             newReservation.append(reservation[9]) #10Sähköposti
   
-            value_list.append(newReservation) #Lisää uusi varaus listaan
+            reservations_list.append(newReservation) #Lisää uusi varaus listaan
 
 
 
 
 
 
-    totalReservations = len(value_list) #Varausten määrä
+    totalReservations = len(reservations_list) #Varausten määrä
     print('--------------------------------------------------------------------------------------')
     print('Reservations:')
     for i in range(totalReservations): #Jokaista varausta kohtaan ->  
-        if (printUnpaid == False and value_list[i][7] == 'Ei'): #Verrataan boolean ja onko maksettu
+        if (printUnpaid == False and reservations_list[i][7] == 'Ei'): #Verrataan boolean ja onko maksettu
             continue   
-        if (printAllTimes == False and CheckIfReservationWithin(value_list[i][3], startTime, endTime) == False): #Verrataan boolean ja onko aikamääreessä
+        if (printAllTimes == False and CheckIfReservationWithin(reservations_list[i][3], startTime, endTime) == False): #Verrataan boolean ja onko aikamääreessä
             continue        
         print('--------------------------------------------------')
         for p in range(len(prefix_list)): #Tulostaa jokaisen varaus tiedon (oletus 11 tieto per varaus, muutoin error)
-            print(prefix_list[p] + ': ' + str(value_list[i][p])) 
+            print(prefix_list[p] + ': ' + str(reservations_list[i][p])) 
     print('--------------------------------------------------------------------------------------')
     print(f'Total price: {ReplaceDot(str(round(totalPrice, 2)))} €, Paid amount: {ReplaceDot(str(round(paidAmount, 2)))} €') #Pyöristää kokonaishinnan kahteen decimaaliin
 
