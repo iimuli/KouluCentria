@@ -94,15 +94,9 @@ def main():
   
             reservations_list.append(newReservation) #Lisää uusi varaus listaan
 
-
-
-
-
-
-    totalReservations = len(reservations_list) #Varausten määrä
     print('--------------------------------------------------------------------------------------')
     print('Reservations:')
-    for i in range(totalReservations): #Jokaista varausta kohtaan ->  
+    for i in range(len(reservations_list)): #Jokaista varausta kohtaan ->  
         if (printUnpaid == False and reservations_list[i][7] == 'Ei'): #Verrataan boolean ja onko maksettu
             continue   
         if (printAllTimes == False and CheckIfReservationWithin(reservations_list[i][3], startTime, endTime) == False): #Verrataan boolean ja onko aikamääreessä
