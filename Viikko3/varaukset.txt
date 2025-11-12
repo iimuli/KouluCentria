@@ -1,0 +1,4 @@
+123|Anna Virtanen|2025-10-31|10:00|2|19.95|True|Kokoustila A|0401234567|anna.virtanen@example.com
+124|Pekka Virtanen|2025-10-31|07:05|2|21.53|True|Kokoustila B|<unknown>|pekka.virtanen@anonym.com
+125|Matti Pökäle|2025-11-02|12:01|2|30.53|False|Kokoustila A|0451234567|matti.pokale@jebou.fi
+126|Anu Saukko|2025-11-05|11:10|2|14.53|True|Kokoustila C|69696969|saukko.anu@hehe.nig
