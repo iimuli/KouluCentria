@@ -1,1 +1,4 @@
-201|Muumi Muumilaakso|muumi@valkoinenlaakso.org|0509876543|2025-11-12|09:00|2|18.50|True|Metsätila 1|2025-08-12 14:33:20
+Aku Ankka|01.01.1569|12.00|70|Mielisairaala Osasto 12B|True|265
+Hessu Hopo|24.12.3056|23.59|8|Joulupukin Paja|True|10586
+Roope Ankka|06.08.1945|08.15|1|Hiroshima|False|10
+Hannu Hanhi|01.09.79|12.00|2000|Pompeii|False|500
