@@ -38,7 +38,6 @@ def main():
 
     with open(reservations , "r", encoding="utf-8") as f: 
         for line in f: 
-
             reservation = line.strip().split("|")
             newReservation = [] 
 
