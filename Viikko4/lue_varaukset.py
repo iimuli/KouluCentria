@@ -1,13 +1,19 @@
-from enum import Enum
+from enum import IntEnum
+from enum import StrEnum
+from datetime import datetime
 
-class ReservationEnum(Enum):
-    name = 0
-    date = 1
-    startTime = 2
-    duration = 3
-    room = 4
-    confirmed = 5
-    price = 6
+class RData(IntEnum):
+    id = 0
+    name = 1
+    email = 2
+    phone = 3
+    date = 4
+    startTime = 5
+    duration = 6
+    price = 7
+    confirmed = 8
+    room = 9
+    reservationTime = 6
 """
 1) Vahvistetut varaukset
 - Muumi Muumilaakso, Metsätila 1, 12.11.2025 klo 09.00
@@ -30,117 +36,199 @@ Pikku Myy Myrsky → Vahvistettu
 Vahvistettujen varausten kokonaistulot: 243,50 €
 
 """
+
+class FontColor(StrEnum): ##jaksoin laittaa vaa yhtee värin
+    RED = "\033[31m"
+    GREEN = "\033[32m"
+    YELLOW = "\033[33m"
+    BLUE = "\033[34m"
+    RESET = "\033[0m"  
+
+
+def muunna_varaustiedot(varaus: list) -> list:
+
+    muutettu_varaus = []
+
+    muutettu_varaus.append(int(varaus[0]))
+    muutettu_varaus.append(str(varaus[1]))
+    muutettu_varaus.append(str(varaus[2]))
+    muutettu_varaus.append(str(varaus[3]))
+    muutettu_varaus.append(datetime.strptime(varaus[4], "%Y-%m-%d").date())
+    muutettu_varaus.append(datetime.strptime(varaus[5], "%H:%M").time()) 
+    muutettu_varaus.append(int(varaus[6]))
+    muutettu_varaus.append(float(varaus[7]))
+    muutettu_varaus.append(bool(varaus[8]== 'True'))
+    muutettu_varaus.append(str(varaus[9]))
+    muutettu_varaus.append(datetime.strptime(varaus[10], "%Y-%m-%d %H:%M:%S"))
+    return muutettu_varaus
+
+def hae_varaukset(varaustiedosto: str) -> list:
+    # HUOM! Tälle funktioille ei tarvitse tehdä mitään!
+    # Jos muutat, kommentoi miksi muutit
+    
+    varaukset = []
+    ## En tarvitse alempaa listaa = ei tarvetta skipata ensimmäistä iteraatiota joka kerta, vaikka toki niinki voi tehdä
+    ##varaukset.append(["varausId", "nimi", "sähköposti", "puhelin", "varauksenPvm", "varauksenKlo", "varauksenKesto", "hinta", "varausVahvistettu", "varattuTila", "varausLuotu"])
+    with open(varaustiedosto, "r", encoding="utf-8") as f:
+        for varaus in f:
+            varaus = varaus.strip()
+            varaustiedot = varaus.split('|')
+            varaukset.append(muunna_varaustiedot(varaustiedot))
+    return varaukset
+
+def ChangeToFinnishTime(time):
+    return time.strftime("%H.%M")
+
+def ChangeToFinnishDate(date):
+     return date.strftime("%d.%m.%Y")
+
 def main():
+    # HUOM! seuraaville riveille ei tarvitse tehdä mitään osassa A!
+    # Osa B vaatii muutoksia -> Esim. tulostuksien (print-funktio) muuttamisen.
+    # Kutsutaan funkioita hae_varaukset, joka palauttaa kaikki varaukset oikeilla tietotyypeillä
+    varaukset = hae_varaukset("varaukset.txt")
 
+    printConfirmedReservations(varaukset)
+    printLongReservations(varaukset)
+    printReservationStatus(varaukset)
+    printSummary(varaukset)
+    printTotalIncome(varaukset)
+
+    #Bonus shittii
     
-    reservations = "varaukset.txt"
-    reservations_list = [] 
+    printHighestIncomeReservation(varaukset)
+    printReservationsPerDay(varaukset)
+    printFilterByRoom(varaukset)
+    printFilterUntilDate(varaukset)
+    printAverageDurationForConfirmedReservations(varaukset)
 
-    with open(reservations , "r", encoding="utf-8") as f: 
-        for line in f: 
-            reservation = line.strip().split("|")
-            newReservation = [] 
+def printConfirmedReservations(varaukset):
+    print(f'\n{FontColor.BLUE}1) Vahvistetut varaukset{FontColor.RESET}')
+    for reservation in varaukset:
+         if reservation[RData.confirmed]:
+            print(f'- {reservation[RData.name]}, {reservation[RData.room]}, {ChangeToFinnishDate(reservation[RData.date])} klo {ChangeToFinnishTime(reservation[RData.startTime])}')
 
-            newReservation.append(reservation[0]) #Varaajan nimi
-            newReservation.append(reservation[1]) #Päivämäärä
-            newReservation.append(reservation[2]) #Aloitusaika
-            newReservation.append(str(reservation[3]))  #Tuntimäärä
-            newReservation.append(reservation[4])  #Kohde
-            newReservation.append(reservation[5] == 'True')  #Vahvistettu
-            newReservation.append(str(reservation[6])) #Tuntihinta
-            reservations_list.append(newReservation) 
-
-    printConfirmedReservations(reservations_list)
-    printLongReservations(reservations_list)
-    printReservationStatus(reservations_list)
-    printSummary(reservations_list)
-    printTotalIncome(reservations_list)
-    printHighestIncomeReservation(reservations_list)
-    printReservationsPerDay(reservations_list)
-    printFilterByRoom(reservations_list, input('\nAnna tilan nimi: '))
-    printFilterUntilDate(reservations_list, input('\nAnna päivämäärä (pp.kk.vvvv): '))
-    printAverageDurationForConfirmedReservations(reservations_list)
-
-    
-def printConfirmedReservations(reservations_list):
-    print('1) Vahvistetut varaukset')
-    for reservation in reservations_list:
-            print(f'- {reservation[ReservationEnum.name.value]}, {reservation[ReservationEnum.room.value]}, {reservation[ReservationEnum.date.value]} klo {reservation[ReservationEnum.startTime.value]}')
-    
-def printLongReservations(reservations_list):
+def printLongReservations(varaukset):
     print('\n2) Pitkät varaukset (≥ 3 h)')
-    for reservation in reservations_list:
-        if int(reservation[ReservationEnum.duration.value]) >= 3:
-            print(f'- {reservation[ReservationEnum.name.value]}, {reservation[ReservationEnum.date.value]} klo {reservation[ReservationEnum.startTime.value]}, kesto {reservation[ReservationEnum.duration.value]} h, {reservation[ReservationEnum.room.value]}')
+    for reservation in varaukset:
+        if reservation[RData.duration] >= 3:
+            print(f'- {reservation[RData.name]}, {ChangeToFinnishDate(reservation[RData.date])} klo {ChangeToFinnishTime(reservation[RData.startTime])}, kesto {reservation[RData.duration]} h, {reservation[RData.room]}')
 
-def printReservationStatus(reservations_list):
+def printReservationStatus(varaukset):
     print('\n3) Varausten vahvistusstatus')
-    for reservation in reservations_list:
-        status = "Vahvistettu" if reservation[ReservationEnum.confirmed.value] else "EI vahvistettu"
-        print(f'{reservation[ReservationEnum.name.value]} → {status}')
+    for reservation in varaukset:
+        status = "Vahvistettu" if reservation[RData.confirmed] else "EI vahvistettu"
+        print(f'{reservation[RData.name]} → {status}')
 
-def printSummary(reservations_list):
-    confirmed_count = sum(1 for r in reservations_list if r[ReservationEnum.confirmed.value])
-    unconfirmed_count = len(reservations_list) - confirmed_count
+def printSummary(varaukset):
+    confirmed_count = sum(1 for r in varaukset if r[RData.confirmed])
+    unconfirmed_count = len(varaukset) - confirmed_count
 
     print('\n4) Yhteenveto vahvistuksista')
     print(f'- Vahvistettuja varauksia: {confirmed_count} kpl')
     print(f'- Ei-vahvistettuja varauksia: {unconfirmed_count} kpl')
 
-def printTotalIncome(reservations_list):
-    total_income = sum(int(r[ReservationEnum.duration.value]) * int(r[ReservationEnum.price.value]) for r in reservations_list if r[ReservationEnum.confirmed.value])
+def printTotalIncome(varaukset):
+    total_income = sum(r[RData.duration] * r[RData.price] for r in varaukset if r[RData.confirmed])
     print('\n5) Vahvistettujen varausten kokonaistulot')
-    print(f'Vahvistettujen varausten kokonaistulot: {total_income} €')
+    print(f'Vahvistettujen varausten kokonaistulot: {str(total_income).replace(".",",")} €')
 
-def printHighestIncomeReservation(reservations_list):
+def printHighestIncomeReservation(varaukset):
     highest_income = 0
     highest_reservation = None
-    for reservation in reservations_list:
-            income = int(reservation[ReservationEnum.duration.value]) * int(reservation[ReservationEnum.price.value])
+    for reservation in varaukset:
+            income = reservation[RData.duration] * reservation[RData.price]
             if income > highest_income:
                 highest_income = income
                 highest_reservation = reservation
                 
     if highest_reservation:
         print('\nKallein varaus:')
-        print(f'- Nimi: {highest_reservation[ReservationEnum.name.value]}')
-        print(f'- Varattu tila: {highest_reservation[ReservationEnum.room.value]}')
-        print(f'- Päivämäärä: {highest_reservation[ReservationEnum.date.value]}')
-        print(f'- Aloitusaika: {highest_reservation[ReservationEnum.startTime.value]}')
-        print(f'- Kesto: {highest_reservation[ReservationEnum.duration.value]} h')
-        print(f'- Kokonaishinta: {highest_reservation[ReservationEnum.price.value]}')
+        print(f'- Nimi: {highest_reservation[RData.name]}')
+        print(f'- Varattu tila: {highest_reservation[RData.room]}')
+        print(f'- Päivämäärä: {ChangeToFinnishDate(highest_reservation[RData.date])}')
+        print(f'- Aloitusaika: {ChangeToFinnishTime(highest_reservation[RData.startTime])}')
+        print(f'- Kesto: {highest_reservation[RData.duration]} h')
+        print(f'- Kokonaishinta: {str(highest_reservation[RData.price]).replace(".",",")} €')
 
-def printReservationsPerDay(reservations_list):
+def printReservationsPerDay(varaukset):
     reservations_per_day = {}
-    for reservation in reservations_list:
-            date = reservation[ReservationEnum.date.value]
-            if date in reservations_per_day:
-                reservations_per_day[date] += 1
-            else:
-                reservations_per_day[date] = 1
+    for reservation in varaukset:
+        date = reservation[RData.date]
+        if date in reservations_per_day:
+            reservations_per_day[date] += 1
+        else:
+            reservations_per_day[date] = 1
                 
     print('\nVarausten määrä per päivä:')
-    for date, count in reservations_per_day.items():
-        print(f'- {date}: {count} kpl')
+    for date in sorted(reservations_per_day.keys()):
+      count = reservations_per_day[date]
+      print(f'- {ChangeToFinnishDate(date)}: {count} kpl')
 
-def printFilterByRoom(reservations_list, room_name):
-    print(f'\nVarausten suodatus tilan mukaan: {room_name}')
-    for reservation in reservations_list:
-            if reservation[ReservationEnum.room.value] == room_name:
-                print(f'- {reservation[ReservationEnum.name.value]}, {reservation[ReservationEnum.date.value]} klo {reservation[ReservationEnum.startTime.value]}, kesto {reservation[ReservationEnum.duration.value]} h')
+def printFilterByRoom(varaukset):
 
-def printFilterUntilDate(reservations_list, end_date):
-    print(f'\nVaraukset annetun päivämäärän jälkeen:')
-    for reservation in reservations_list:
-            if reservation[ReservationEnum.date.value] <= end_date:
-                print(f'- {reservation[ReservationEnum.name.value]}, {reservation[ReservationEnum.date.value]} klo {reservation[ReservationEnum.startTime.value]}, kesto {reservation[ReservationEnum.duration.value]} h')
+    allRooms = []
+    for v in varaukset:      
+        if v[RData.room] not in allRooms:
+            allRooms.append(v[RData.room])
+    print('\nValitse näytettävät varaukset tilan mukaan. Saatavilla olevat huoneet:')
 
-def printAverageDurationForConfirmedReservations(reservations_list):
+    roomIndex = 1
+    for r in allRooms:
+        print(f'{roomIndex} = {r}')
+        roomIndex += 1
+    print('Kirjoita "s" skipataksesi tämä vaihe.')
+    while True:
+        try:
+            roomInput = input('\nAnna tilan numero: ')
+            if roomInput == 's':
+                return
+            elif 1 <= int(roomInput) <= len(allRooms):
+                roomChoice = allRooms[int(roomInput) - 1]
+                print(f'\nVarausten suodatus tilan mukaan: {roomChoice}')
+                for reservation in varaukset:
+                     if reservation[RData.room] == roomChoice:
+                         print(f'- {reservation[RData.name]}, {reservation[RData.date]} klo {reservation[RData.startTime]}, kesto {reservation[RData.duration]} h')
+                return
+            else:
+                print("Huone numeroa ei saatavilla! Yritä uudelleen.")
+        except ValueError:
+            print("Syötä huoneen numero.")
+
+    
+
+
+def printFilterUntilDate(varaukset):
+    print('\nValitse näytettävät varaukset valittuun päivämäärään asti.')
+    print('Kirjoita "s" skipataksesi tämä vaihe.')
+    while True:
+        try:
+            dateInput = input('Anna validi päivämäärä muodossa *pp.kk.yyyy*: ')
+            if dateInput == 's':
+                return
+            elif datetime.strptime(dateInput, "%d.%m.%Y"):               
+                date = datetime.strptime(dateInput, "%d.%m.%Y").date()
+                print(f'\nNäytetään varaukset päivämäärään {ChangeToFinnishDate(date)} asti.')
+                for reservation in varaukset:
+                        if reservation[RData.date] <= date:
+                            print(f'- {reservation[RData.name]}, {ChangeToFinnishDate(reservation[RData.date])} klo {ChangeToFinnishTime(reservation[RData.startTime])}, kesto {reservation[RData.duration]} h')
+                return
+            else:
+                print("???.")
+        except ValueError:
+            print("Syötä validi päivämäärä.")
+
+    
+
+
+
+
+def printAverageDurationForConfirmedReservations(varaukset):
     total_duration = 0
     confirmed_count = 0
-    for reservation in reservations_list:
-            if reservation[ReservationEnum.confirmed.value]:
-                total_duration += int(reservation[ReservationEnum.duration.value])
+    for reservation in varaukset:
+            if reservation[RData.confirmed]:
+                total_duration += reservation[RData.duration]
                 confirmed_count += 1
                 
     average_duration = total_duration / confirmed_count if confirmed_count > 0 else 0
