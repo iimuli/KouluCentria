@@ -13,7 +13,7 @@ class RData(IntEnum):
     price = 7
     confirmed = 8
     room = 9
-    reservationTime = 6
+    reservationTime = 10
 """
 1) Vahvistetut varaukset
 - Muumi Muumilaakso, Metsätila 1, 12.11.2025 klo 09.00
