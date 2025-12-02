@@ -1,3 +1,6 @@
+# Copyright (c) 2025 Juha Eemeli Väisänen
+# License: MIT
+
 from enum import IntEnum
 from datetime import datetime
 
