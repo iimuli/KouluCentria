@@ -4,6 +4,13 @@
 from enum import IntEnum
 from datetime import datetime
 
+##TODO:
+## 1. Laskea nettokulutuksen (kulutus − tuotanto) joka päivälle.
+## 2. Korostaa parhaan päivän (esim. pienin nettokulutus) tähdellä tai lisätekstillä.
+## 3. Tulostaa viikon yhteenvedon (kokonaiskulutus ja -tuotanto vaiheittain).
+## 4. Lisätä yksinkertaisen valikon (näytä vain kulutus / tuotanto / molemmat).
+
+
 class EData(IntEnum): 
     """ihmisystävällisempi tiedon haku listoilta """
     day = 0
@@ -19,13 +26,14 @@ class EData(IntEnum):
 def main(): 
     """ main :) """
     data_list = DictionaryPerDay("viikko42.csv")
-    calculateKWHperDay(data_list)
+    printDailyValues(data_list)
  
 
-def calculateKWHperDay(data_list):
+def printDailyValues(data_list):
     """Perus looppi, printtaa kaikki listan datat"""
 
-    print('Viikon 42 sähkönkulutus ja -tuotanto (kWh, vaiheittain)\n\nPäivä         Pvm         Kulutus [kWh]                 Tuotanto [kWh]\n             (pv.kk.vvvv)  v1      v2      v3            v1     v2     v3\n---------------------------------------------------------------------------')
+    print('---------------------------------------------------------------------------------\n\n\n\n'
+          'Viikon 42 sähkönkulutus ja -tuotanto (kWh, vaiheittain)\n\nPäivä         Pvm         Kulutus [kWh]                 Tuotanto [kWh]\n             (pv.kk.vvvv)  v1      v2      v3            v1     v2     v3\n---------------------------------------------------------------------------')
 
     for d in data_list.values():
 
