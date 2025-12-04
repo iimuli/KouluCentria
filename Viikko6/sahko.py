@@ -2,13 +2,11 @@
 # License: MIT
 
 from enum import IntEnum
-from datetime import datetime, date, time
+from datetime import datetime, date, time, timedelta
 
 
 class EData(IntEnum): 
     """ihmisystävällisempi tiedon haku listoilta """
-    ##date = 0
-    ##time = 0
     netCon = 0
     netPro= 1
     avgTemp = 2
@@ -50,29 +48,54 @@ def inputPromptLoop(csv):
     ##return None
 
 def raportByDate(csv):
-    print('\n\n\nValitse aikaväli: ')
 
+    earliestDate = next(iter(csv))
+    latestdate = next(reversed(csv))
+
+    print(f'\n\n\nValitse aikavälillä: {ChangeToFinnishDate(earliestDate)} - {ChangeToFinnishDate(latestdate)}')
     date1 = None
     date2 = None
 
     while True:
         date1 = input('Alku päivämäärä (xx.xx.xxxx): ')
         try:
-            datetime.strptime(date1, "%d.%m.%Y")
-            break
+            date1 = datetime.strptime(date1, "%d.%m.%Y").date()
+            if earliestDate <= date1 <= latestdate:
+                break
         except ValueError:
             print("Väärä inputti")
 
     while True:
         date2 = input('\nLoppu päivämäärä (xx.xx.xxxx): ')
         try:
-            datetime.strptime(date2, "%d.%m.%Y")
-            break
+            date2 = datetime.strptime(date2, "%d.%m.%Y").date()
+            if earliestDate <= date2 <= latestdate:
+                break
         except ValueError:
             print("Väärä inputti")
     
-    print(f'\n\nHaetaan yhteenveto aikavälillä: {date1} - {date2}:')
+    days = (date2 - date1).days
+
+    overAllConsumption = 0
+    overAllProduction = 0
+    tempSum = 0
+
+    print('-------------------------------------------------------------------------------------------\n'
+          f'Aikaväli: {ChangeToFinnishDate(date1)} - {ChangeToFinnishDate(date2)}.\n\n'
+          'Kokonaiskulutus [kWh]           Kokonaistuotanto [kWh]          Keskilämpötila [C]\n')
+
+    for i in range(days + 1):
+
+        currentDate = date1 + timedelta(days=i)
+        overAllProduction += csv[currentDate][EData.netPro]
+        overAllConsumption += csv[currentDate][EData.netCon]
+        tempSum += csv[currentDate][EData.avgTemp]
+
+    print(f'{' ' * 7}{overAllConsumption:.2f}{' ' * 25}{overAllProduction:.2f}{' ' * 28}{(tempSum / days + 1):.2f}\n'
+          '-------------------------------------------------------------------------------------------\n\n')
+
     return ##left here
+
 
 
 def monthRaport(csv):
@@ -96,6 +119,7 @@ def readCSV(csv):
 
             data = line.strip().split(";")
             data_date = datetime.strptime(data[0].strip().split("T")[0], "%Y-%m-%d").date()
+
             ##data_time = data[0].strip().split("T")[1].strip().split(".")[0] ei tarvine kellonaikaa, kun päivä kerrallaan halutaa dataa?
             ##data_list.append(str(data_time))
 
@@ -114,17 +138,21 @@ def readCSV(csv):
                 dataMap[data_date][EData.netCon] += float(data[1].replace(",","."))
                 dataMap[data_date][EData.netPro] += float(data[2].replace(",","."))
 
-
+                """Näköjää lämpötila pysyy staattisena päivittäin, mutta tämä laskee vuorokauden keskimääräisen lämpötilan"""
                 avgTemperature.append(float(data[3].replace(",",".")))
                 if dayIndex == 24:
                     dayIndex = 0
                     tempAll = 0
                     for temp in avgTemperature:
                         tempAll += temp
-                    tempAll /= 24
+                    tempAll = sum(avgTemperature) / len(avgTemperature)
+                    avgTemperature = []  
                     data_list.append(float(tempAll))
 
     return dataMap
+
+def ChangeToFinnishDate(date):
+     return date.strftime("%d.%m.%Y")
 
 if __name__ == "__main__":
     main()
