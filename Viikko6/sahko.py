@@ -230,7 +230,7 @@ def ChangeToFinnishDate(date):
 
 def returnToMain():
     """joka funktion lopussa q inputil valikkoon takaisin, antaa käyttäjälle aikaa perehtyä dataan."""
-    print('Paina "q" palataksesi valikkoon.')
+    print('Kirjoita "q" palataksesi valikkoon.')
 
     while True:
         returnKey = input()
