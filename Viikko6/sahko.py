@@ -160,11 +160,11 @@ def yearRaport(csv):
     overAllConsumption = 0
     overAllProduction = 0
     tempSum = 0
-    daysInMonth = 0
+    daysInRaport = 0
 
 
     for d in csv.keys():
-        daysInMonth += 1
+        daysInRaport += 1
         overAllConsumption += csv[d][EData.netCon]
         overAllProduction += csv[d][EData.netPro]
         tempSum += csv[d][EData.avgTemp]
@@ -172,7 +172,7 @@ def yearRaport(csv):
     print(f'\n\n{'-' * 130}\n'
         f'Vuoden 2025 raportti:\n\n'
         'Kokonaiskulutus/vrk [kWh]           Kokonaistuotanto/vrk [kWh]          Keskilämpötila/vrk [°C]\n'
-        f'{' ' * 10}{overAllConsumption:.2f}{' ' * 30}{overAllProduction:.2f}{' ' * 30}{(tempSum / daysInMonth):.2f}\n'
+        f'{' ' * 10}{overAllConsumption:.2f}{' ' * 30}{overAllProduction:.2f}{' ' * 30}{(tempSum / daysInRaport):.2f}\n'
         f'{'-' * 130}\n\n')
 
 
