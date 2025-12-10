@@ -31,12 +31,9 @@ class FMonth(Enum):
 csvFile = None
 
 def main():
-    """Main, tekee csvFilest(kirjasto) globaalin, jos tiedost on null/None, hakee datan (ei tarvitse joka kerta lukea uudestaan)"""
+    """Main, lukee txt tiedoston, tekee siitä datakirjaston ja globaalin jotta helpompi päästä käsiksi"""
     global csvFile
-
-    if csvFile == None:
-        csvFile = readCSV('2025.csv')
-
+    csvFile = readCSV('2025.csv')
     inputPromptLoop(csvFile)
 
 
@@ -239,7 +236,7 @@ def returnToMain():
         returnKey = input()
         try:
             if returnKey == 'q':
-                main()
+                inputPromptLoop(csvFile)
         except ValueError:
             None
 
