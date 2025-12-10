@@ -1,11 +1,12 @@
-# Copyright (c) 2025 Juha Eemeli Väisänen
+# Copyright (c) 2025 Juha Eemeli Vaisanen
 # License: MIT
 
 from enum import IntEnum, Enum
 from datetime import datetime, timedelta
+import os
 
 class EData(IntEnum): 
-    """ihmisystävällisempi tiedon haku listoilta """
+    """ihmisystavallisempi tiedon haku listoilta """
     netCon = 0
     netPro= 1
     avgTemp = 2
@@ -17,8 +18,8 @@ class FMonth(Enum):
     Maaliskuu = 3
     Huhtikuu = 4
     Toukokuu = 5
-    Kesäkuu = 6
-    Heinäkuu = 7
+    Kesakuu = 6
+    Heinakuu = 7
     Elokuu = 8
     Syyskuu = 9
     Lokakuu = 10
@@ -29,10 +30,12 @@ class FMonth(Enum):
         return cls(monthNumber).name.capitalize()
 
 csvFile = None
+raportPath = 'raport.txt'
 
 def main():
-    """Main, lukee txt tiedoston, tekee siitä datakirjaston ja globaalin jotta helpompi päästä käsiksi"""
+    """Main, lukee txt tiedoston, tekee siita datakirjaston ja globaalin jotta helpompi paasta kasiksi"""
     global csvFile
+    global raportPath
     csvFile = readCSV('2025.csv')
     inputPromptLoop(csvFile)
 
@@ -63,7 +66,7 @@ def inputPromptLoop(csv):
             exit()
 
 def raportByDate(csv):
-    """Inputit aikavälille, hakee kaikki datat kyseiseltä aikaväliltä (käyttö, tuotto, keskimääräinen lämpötila)"""
+    """Inputit aikavalille, hakee kaikki datat kyseiselta aikavalilta (kaytto, tuotto, keskimaarainen lampotila)"""
 
     earliestDate = next(iter(csv))
     latestdate = next(reversed(csv))
@@ -95,10 +98,9 @@ def raportByDate(csv):
     overAllConsumption = 0
     overAllProduction = 0
     tempSum = 0
+    print('\n')
+    raportDays = ('Pvm [paiva/kuukausi/vuosi]           Kokonaiskulutus/vrk [kWh]           Kokonaistuotanto/vrk [kWh]          Keskilampotila/vrk [C]\n')
 
-    print(f'{'-' * 130}\n'
-          f'Aikaväli: {ChangeToFinnishDate(date1)} - {ChangeToFinnishDate(date2)}.\n\n'
-          'Pvm [päivä/kuukausi/vuosi]           Kokonaiskulutus/vrk [kWh]           Kokonaistuotanto/vrk [kWh]          Keskilämpötila/vrk [°C]\n')
 
     for i in range(days):
 
@@ -106,14 +108,18 @@ def raportByDate(csv):
         overAllProduction += csv[currentDate][EData.netPro]
         overAllConsumption += csv[currentDate][EData.netCon]
         tempSum += csv[currentDate][EData.avgTemp]
-        print(f'{currentDate}{' ' * 30}{csv[currentDate][EData.netCon]:.2f}{' ' * 30}{csv[currentDate][EData.netPro]:.2f}{' ' * 30}{csv[currentDate][EData.avgTemp]:.2f}')
+        raportDays += (f'{currentDate}{' ' * 30}{csv[currentDate][EData.netCon]:.2f}{' ' * 30}{csv[currentDate][EData.netPro]:.2f}{' ' * 30}{csv[currentDate][EData.avgTemp]:.2f}\n')
 
-    print(f'\nKokonais kulutus aikavälillä [kWh]          Kokonais tuotto aikavälillä [kWh]        Keskilämpötila aikavälillä [°C]\n\n'
-          f'{' ' * 10}{overAllConsumption:.2f}{' ' * 40}{overAllProduction:.2f}{' ' * 40}{(tempSum / days):.2f}\n')
-    print(f'\n{'-' * 130}\n\n')
+    raport = (f'{'-' * 130}\n'
+        f'Aikavali: {ChangeToFinnishDate(date1)} - {ChangeToFinnishDate(date2)}.\n'    
+        f'\nKokonais kulutus aikavalilla [kWh]          Kokonais tuotto aikavalilla [kWh]        Keskilampotila aikavalilla [C]\n\n'
+          f'{' ' * 10}{overAllConsumption:.2f}{' ' * 40}{overAllProduction:.2f}{' ' * 40}{(tempSum / days):.2f}\n'
+          f'\n{'-' * 130}\n\n')
+    raport += raportDays + (f'\n{'-' * 130}\n\n')
+    print(f'\n{raport}')
 
 
-    returnToMain()
+    checkRaport(raport)
 
 
 
@@ -143,14 +149,16 @@ def monthRaport(csv):
             overAllProduction += csv[date][EData.netPro]
             tempSum += csv[date][EData.avgTemp]
 
-    print(f'\n\n{'-' * 130}\n'
-          f'Valittu kuukausi: {FMonth.monthFromNumber(selectedMonth)}, päiviä kirjattu: {daysInMonth}\n\n'
-          'Kokonaiskulutus/vrk [kWh]           Kokonaistuotanto/vrk [kWh]          Keskilämpötila/vrk [°C]\n'
+    raport = (f'{'-' * 130}\n'
+              f'Valittu kuukausi: {FMonth.monthFromNumber(selectedMonth)}, paivia kirjattu: {daysInMonth}\n\n'
+          'Kokonaiskulutus/vrk [kWh]           Kokonaistuotanto/vrk [kWh]          Keskilampotila/vrk [C]\n'
           f'{' ' * 10}{overAllConsumption:.2f}{' ' * 30}{overAllProduction:.2f}{' ' * 30}{(tempSum / daysInMonth):.2f}\n'
           f'{'-' * 130}\n\n')
+    
+    print(f'\n\n{raport}')
 
 
-    returnToMain()
+    checkRaport(raport)
     
    
 
@@ -168,20 +176,22 @@ def yearRaport(csv):
         overAllConsumption += csv[d][EData.netCon]
         overAllProduction += csv[d][EData.netPro]
         tempSum += csv[d][EData.avgTemp]
-
-    print(f'\n\n{'-' * 130}\n'
-        f'Vuoden 2025 raportti:\n\n'
-        'Kokonaiskulutus/vrk [kWh]           Kokonaistuotanto/vrk [kWh]          Keskilämpötila/vrk [°C]\n'
+    
+    raport = (f'{'-' * 130}\n'
+              f'Vuoden 2025 raportti. Kirjattuja paivia: {daysInRaport}\n\n'
+        'Kokonaiskulutus/vrk [kWh]           Kokonaistuotanto/vrk [kWh]          Keskilampotila/vrk [C]\n'
         f'{' ' * 10}{overAllConsumption:.2f}{' ' * 30}{overAllProduction:.2f}{' ' * 30}{(tempSum / daysInRaport):.2f}\n'
         f'{'-' * 130}\n\n')
+    
+    print(f'\n\n{raport}')
 
 
-    returnToMain()
+    checkRaport(raport)
 
 
 def readCSV(csv):
-    """lukee txt, jakaa kaikki omaan date avaimiin kirjastoon (data_date : vuosi, kuukausi, päivä),
-      ja tekee niille listan arvoista. Laskee valmiiksi yhteen käytön ja tuoton, sekä keskimääräisen lämpötilan per vrk"""
+    """lukee txt, jakaa kaikki omaan date avaimiin kirjastoon (data_date : vuosi, kuukausi, paiva),
+      ja tekee niille listan arvoista. Laskee valmiiksi yhteen kayton ja tuoton, seka keskimaaraisen lampotilan per vrk"""
     dataMap = {}
     avgTemperature = []
     currentDate = None
@@ -218,7 +228,7 @@ def readCSV(csv):
                 dataMap[currentDate][EData.netPro] += float(data[2].replace(",","."))
                 avgTemperature.append(float(data[3].replace(",",".")))
 
-    if appended == False: ##ylijäämä lisäys = jos kyseessä viimeinen haettu päivämäärä
+    if appended == False: ##ylijaama lisays = jos kyseessa viimeinen haettu paivamaara
         tempAll = sum(avgTemperature) / len(avgTemperature)
         dataMap[currentDate].append(float(tempAll))
 
@@ -228,17 +238,31 @@ def ChangeToFinnishDate(date):
      """xxxx.xx.xx -> xx.xx.xxxx"""
      return date.strftime("%d.%m.%Y")
 
-def returnToMain():
-    """joka funktion lopussa q inputil valikkoon takaisin, antaa käyttäjälle aikaa perehtyä dataan."""
-    print('Kirjoita "q" palataksesi valikkoon.')
+def checkRaport(text):
+    """luo raportin, jatkaa valikkon tai poistuu koodista"""
 
+    print('Mita haluat tehdä seuraavaksi?\n'
+          '1) Kirjoita raportti tiedostoon raportti.txt\n'
+          '2) Luo uusi raportti\n'
+          '3) Lopeta')
     while True:
-        returnKey = input()
         try:
-            if returnKey == 'q':
-                inputPromptLoop(csvFile)
+            textInput = input()
+            if int(textInput) == 1:
+                print('\nKirjattu uusi raportti tiedostoon: raportti.txt')
+                with open(raportPath, 'w') as file:
+                     file.write(f'{text}')
+                break
+            elif int(textInput) == 2:
+                break
+            elif int(textInput) == 3:
+                print('Hei hei!')
+                exit()
         except ValueError:
-            None
+            None      
+
+    inputPromptLoop(csvFile)
+
 
 if __name__ == "__main__":
     main()
