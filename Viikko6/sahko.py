@@ -3,7 +3,6 @@
 
 from enum import IntEnum, Enum
 from datetime import datetime, timedelta
-import os
 
 class EData(IntEnum): 
     """ihmisystavallisempi tiedon haku listoilta """
@@ -235,7 +234,7 @@ def readCSV(csv):
     return dataMap
 
 def ChangeToFinnishDate(date):
-     """xxxx.xx.xx -> xx.xx.xxxx"""
+     """y.m.d -> d.m.y"""
      return date.strftime("%d.%m.%Y")
 
 def checkRaport(text):
