@@ -31,11 +31,10 @@ class FMonth(Enum):
 csvFile = None
 
 def main():
-    """Main, tekee csvFilest(kirjasto) globaalin, jos tiedost on null/None, hakee datan"""
+    """Main, tekee csvFilest(kirjasto) globaalin, jos tiedost on null/None, hakee datan (ei tarvitse joka kerta lukea uudestaan)"""
     global csvFile
 
     if csvFile == None:
-        print('getting csv')
         csvFile = readCSV('2025.csv')
 
     inputPromptLoop(csvFile)
